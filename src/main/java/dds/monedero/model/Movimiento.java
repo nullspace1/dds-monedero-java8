@@ -21,7 +21,8 @@ public class Movimiento {
   }
 
   public boolean esDeLaFecha(LocalDate fecha) {
-    return this.fecha.equals(fecha);
+    return this.fecha.getYear() == fecha.getYear()
+        && this.fecha.getDayOfYear() == fecha.getDayOfYear();
   }
 
 }

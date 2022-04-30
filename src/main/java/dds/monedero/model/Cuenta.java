@@ -27,22 +27,10 @@ public class Cuenta {
     saldo += cantidadDepositada;
   }
 
-
   public void sacar(double cantidadExtraida) {
     verificarSePuedeExtraer(cantidadExtraida);
     agregarExtraccion(cantidadExtraida);
     saldo -= cantidadExtraida;
-  }
-
-
-  public void agregarDeposito(double cuanto) {
-    Movimiento movimiento = new Movimiento(cuanto);
-    depositos.add(movimiento);
-  }
-
-  public void agregarExtraccion(double cuanto) {
-    Movimiento movimiento = new Movimiento(cuanto);
-    extracciones.add(movimiento);
   }
 
   public double getMontoExtraidoA(LocalDate fecha) {
@@ -95,6 +83,17 @@ public class Cuenta {
     }
 
   }
+
+  public void agregarDeposito(double cuanto) {
+    Movimiento movimiento = new Movimiento(cuanto);
+    depositos.add(movimiento);
+  }
+
+  public void agregarExtraccion(double cuanto) {
+    Movimiento movimiento = new Movimiento(cuanto);
+    extracciones.add(movimiento);
+  }
+
 
 
   public double getSaldo() {

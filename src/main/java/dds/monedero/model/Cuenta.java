@@ -8,6 +8,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+// Para cuando alguien vea esto, los comentarios se suponen que los voy a borrar antes de la entrega
+// final.
+// Si aun estan, perdon :c
+
 public class Cuenta {
 
   private double saldo;
@@ -19,15 +23,26 @@ public class Cuenta {
   }
 
   public void poner(double cuanto) {
+
     if (cuanto <= 0) {
       throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
     }
 
-    if (getMovimientos().stream().filter(movimiento -> movimiento.isDeposito()).count() >= 3) {
+    // Metemos el comportamiento de calcular la cantidad de depositos en el dia en un metodo propio
+    if (cantidadDeDepositosEnElDia() >= 3) {
       throw new MaximaCantidadDepositosException("Ya excedio los " + 3 + " depositos diarios");
     }
 
-    new Movimiento(LocalDate.now(), cuanto, true).agregateA(this);
+    // Aca teniamos Primitive Obsession con el booleano para saber si era movimiento, y por otro
+    // lado la clase de movimiento se encargaba de mandarle un mensaje para que cargue el movimiento
+    // en la lista (??)
+
+    // Tambien no era necesario pasarle la fecha al movimiento como parametro del constructor, el
+    // movimiento lo puede hacer por si solo
+
+    Movimiento movimientoRealizado = new Movimiento(cuanto, TipoMovimiento.DEPOSITO);
+    movimientos.add(movimientoRealizado);
+    saldo += cuanto;
   }
 
   public void sacar(double cuanto) {
@@ -52,14 +67,13 @@ public class Cuenta {
   }
 
   public double getMontoExtraidoA(LocalDate fecha) {
-    return getMovimientos().stream()
+    return movimientos.stream()
         .filter(movimiento -> !movimiento.isDeposito() && movimiento.getFecha().equals(fecha))
         .mapToDouble(Movimiento::getMonto).sum();
   }
 
-
-  public List<Movimiento> getMovimientos() {
-    return movimientos;
+  public long cantidadDeDepositosEnElDia() {
+    return movimientos.stream().filter(movimiento -> movimiento.isDeposito()).count();
   }
 
   public double getSaldo() {

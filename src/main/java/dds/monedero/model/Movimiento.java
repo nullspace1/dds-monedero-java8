@@ -6,12 +6,10 @@ public class Movimiento {
 
   private LocalDate fecha;
   private double monto;
-  private TipoMovimiento tipo;
 
-  public Movimiento(double monto, TipoMovimiento tipo) {
+  public Movimiento(double monto) {
     this.fecha = LocalDate.now();
     this.monto = monto;
-    this.tipo = tipo;
   }
 
   public double getMonto() {
@@ -20,14 +18,6 @@ public class Movimiento {
 
   public LocalDate getFecha() {
     return fecha;
-  }
-
-  public boolean fueDepositado(LocalDate fecha) {
-    return isDeposito() && esDeLaFecha(fecha);
-  }
-
-  public boolean fueExtraido(LocalDate fecha) {
-    return isExtraccion() && esDeLaFecha(fecha);
   }
 
   public boolean esDeLaFecha(LocalDate fecha) {

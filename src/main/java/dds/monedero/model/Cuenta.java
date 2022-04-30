@@ -15,6 +15,8 @@ import java.util.List;
 public class Cuenta {
 
   private double saldo;
+  private double limiteExtraccion = 1000;
+  private int maximaCantidadDeDepositos;
 
   private List<Movimiento> movimientos = new ArrayList<>();
 
@@ -23,51 +25,21 @@ public class Cuenta {
   }
 
   public void poner(double cantidadDepositada) {
-
-    if (cantidadDepositada <= 0) {
-      throw new MontoNegativoException(
-          cantidadDepositada + ": el monto a ingresar debe ser un valor positivo");
-    }
-
-    // Metemos el comportamiento de calcular la cantidad de depositos en el dia en un metodo propio
-    if (cantidadDeDepositosEnElDia() >= 3) {
-      throw new MaximaCantidadDepositosException("Ya excedio los " + 3 + " depositos diarios");
-    }
-
-    // Aca teniamos Primitive Obsession con el booleano para saber si era movimiento, y por otro
-    // lado la clase de movimiento se encargaba de mandarle un mensaje para que cargue el movimiento
-    // en la lista (??)
-
-    // Tambien no era necesario pasarle la fecha al movimiento como parametro del constructor, el
-    // movimiento lo puede hacer por si solo
-
-    Movimiento movimientoRealizado = new Movimiento(cantidadDepositada, TipoMovimiento.DEPOSITO);
-    movimientos.add(movimientoRealizado);
+    verificarSePuedeDepositar(cantidadDepositada);
+    agregarMovimiento(cantidadDepositada, TipoMovimiento.DEPOSITO);
     saldo += cantidadDepositada;
   }
 
+
   public void sacar(double cantidadExtraida) {
-
-    if (cantidadExtraida <= 0) {
-      throw new MontoNegativoException(
-          cantidadExtraida + ": el monto a ingresar debe ser un valor positivo");
-    }
-    if (saldoInsuficiente(cantidadExtraida)) {
-      throw new SaldoMenorException("No puede sacar mas de " + getSaldo() + " $");
-    }
-
-    if (superaLimiteExtraccion(cantidadExtraida)) {
-      throw new MaximoExtraccionDiarioException(
-          "No puede extraer mas de $ " + 1000 + " diarios, límite: " + limiteExtraccion());
-    }
-
-    Movimiento movimientoRealizado = new Movimiento(cantidadExtraida, TipoMovimiento.DEPOSITO);
-    movimientos.add(movimientoRealizado);
+    verificarSePuedeExtraer(cantidadExtraida);
+    agregarMovimiento(cantidadExtraida, TipoMovimiento.EXTRACCION);
     saldo -= cantidadExtraida;
   }
 
-  public void agregarMovimiento(LocalDate fecha, double cuanto, boolean esDeposito) {
-    Movimiento movimiento = new Movimiento(fecha, cuanto, esDeposito);
+
+  public void agregarMovimiento(double cuanto, TipoMovimiento tipo) {
+    Movimiento movimiento = new Movimiento(cuanto, tipo);
     movimientos.add(movimiento);
   }
 
@@ -91,8 +63,38 @@ public class Cuenta {
 
   public double limiteExtraccion() {
     double montoExtraidoHoy = getMontoExtraidoA(LocalDate.now());
-    return 1000 - montoExtraidoHoy;
+    return this.limiteExtraccion - montoExtraidoHoy;
   }
+
+  private void verificarSePuedeDepositar(double cantidadDepositada) {
+    if (cantidadDepositada <= 0) {
+      throw new MontoNegativoException(
+          cantidadDepositada + ": el monto a ingresar debe ser un valor positivo");
+    }
+
+    // Metemos el comportamiento de calcular la cantidad de depositos en el dia en un metodo propio
+    if (cantidadDeDepositosEnElDia() >= this.maximaCantidadDeDepositos) {
+      throw new MaximaCantidadDepositosException(
+          "Ya excedio los " + this.maximaCantidadDeDepositos + " depositos diarios");
+    }
+  }
+
+  private void verificarSePuedeExtraer(double cantidadExtraida) {
+    if (cantidadExtraida <= 0) {
+      throw new MontoNegativoException(
+          cantidadExtraida + ": el monto a ingresar debe ser un valor positivo");
+    }
+    if (saldoInsuficiente(cantidadExtraida)) {
+      throw new SaldoMenorException("No puede sacar mas de " + getSaldo() + " $");
+    }
+
+    if (superaLimiteExtraccion(cantidadExtraida)) {
+      throw new MaximoExtraccionDiarioException("No puede extraer mas de $ " + this.limiteExtraccion
+          + " diarios, límite: " + limiteExtraccion());
+    }
+
+  }
+
 
   public double getSaldo() {
     return saldo;

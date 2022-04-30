@@ -1,0 +1,10 @@
+ Aca teniamos Primitive Obsession con el booleano para saber si era movimiento.
+ 
+ Por otro lado la clase de movimiento se encargaba de mandarle un mensaje para que cargue el movimiento
+en la lista.
+
+ Tambien no era necesario pasarle la fecha al movimiento como parametro del constructor, el movimiento lo puede hacer por si solo
+ 
+ El metodo sacar era un long method, calcular el limite de extraccion podia delegarse a otro metodo.
+ El limite de extraccion era un magic number, si despues cambia resulta engorroso tener que tocar todo el codigo para actualizarlo.
+ lo mismo con la cantidad de extracciones permitidas.

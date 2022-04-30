@@ -2,7 +2,7 @@ package dds.monedero.model;
 
 import dds.monedero.exceptions.MaximaCantidadDepositosException;
 import dds.monedero.exceptions.MaximoExtraccionDiarioException;
-import dds.monedero.exceptions.MontoNegativoException;
+import dds.monedero.exceptions.MontoInvalidoException;
 import dds.monedero.exceptions.SaldoMenorException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,8 +11,9 @@ import java.util.List;
 public class Cuenta {
 
   private double saldo;
+
   private double limiteExtraccion = 1000;
-  private int maximaCantidadDeDepositos;
+  private int maximaCantidadDeDepositos = 3;
 
   private List<Movimiento> extracciones = new ArrayList<>();
   private List<Movimiento> depositos = new ArrayList<>();
@@ -57,11 +58,10 @@ public class Cuenta {
 
   private void verificarSePuedeDepositar(double cantidadDepositada) {
     if (cantidadDepositada <= 0) {
-      throw new MontoNegativoException(
+      throw new MontoInvalidoException(
           cantidadDepositada + ": el monto a ingresar debe ser un valor positivo");
     }
 
-    // Metemos el comportamiento de calcular la cantidad de depositos en el dia en un metodo propio
     if (cantidadDeDepositosEnElDia(LocalDate.now()) >= this.maximaCantidadDeDepositos) {
       throw new MaximaCantidadDepositosException(
           "Ya excedio los " + this.maximaCantidadDeDepositos + " depositos diarios");
@@ -69,8 +69,9 @@ public class Cuenta {
   }
 
   private void verificarSePuedeExtraer(double cantidadExtraida) {
+
     if (cantidadExtraida <= 0) {
-      throw new MontoNegativoException(
+      throw new MontoInvalidoException(
           cantidadExtraida + ": el monto a ingresar debe ser un valor positivo");
     }
     if (saldoInsuficiente(cantidadExtraida)) {

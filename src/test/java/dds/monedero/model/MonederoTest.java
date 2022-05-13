@@ -85,22 +85,6 @@ public class MonederoTest {
     });
   }
 
-
-  @Test
-  public void obtenerExtraccionesEnFecha() {
-    cuenta.setSaldo(900);
-    cuenta.sacar(400);
-    cuenta.sacar(200);
-    assertEquals(600, cuenta.montoExtraidoEnElDia(LocalDate.now()));
-  }
-
-  @Test
-  public void cantidadDepositosEnFecha() {
-    cuenta.poner(100);
-    cuenta.poner(100);
-    assertEquals(2, cuenta.cantidadDeDepositosEnElDia(LocalDate.now()));
-  }
-
   @Test
   public void limiteDeExtraccionesSeReseteaAlTerminarElDia(){
     cuenta.setSaldo(100);
@@ -117,7 +101,6 @@ public class MonederoTest {
 
   @Test
   public void limiteCantidadDeDepositosSeReseteaAlTerminarElDia(){
-
     Clock unaFecha = Clock.fixed(Instant.parse("2022-04-29T00:02:00.00Z"), ZoneId.of("America/Argentina/Buenos_Aires"));
     Clock otraFecha = Clock.fixed(Instant.parse("2022-04-30T00:02:00.00Z"), ZoneId.of("America/Argentina/Buenos_Aires"));
 

@@ -7,7 +7,13 @@ import dds.monedero.exceptions.MaximaCantidadDepositosException;
 import dds.monedero.exceptions.MaximoExtraccionDiarioException;
 import dds.monedero.exceptions.MontoInvalidoException;
 import dds.monedero.exceptions.SaldoMenorException;
+
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +22,7 @@ public class MonederoTest {
 
   @BeforeEach
   void init() {
+    Movimiento.setClock(Clock.systemDefaultZone());
     cuenta = new Cuenta(0);
   }
 
@@ -47,19 +54,18 @@ public class MonederoTest {
 
   @Test
   void ExtraerMasDe3VecesFalla() {
-    assertThrows(MaximaCantidadDepositosException.class, () -> {
-      cuenta.poner(1500);
-      cuenta.poner(456);
-      cuenta.poner(1900);
-      cuenta.poner(245);
-    });
+    cuenta.poner(15);
+    cuenta.poner(4);
+    cuenta.poner(19);
+    assertThrows(MaximaCantidadDepositosException.class, () ->
+      cuenta.poner(24));
   }
 
   @Test
   void ExtraerMasQueElSaldoFalla() {
     assertThrows(SaldoMenorException.class, () -> {
       cuenta.setSaldo(90);
-      cuenta.sacar(1001);
+      cuenta.sacar(101);
     });
   }
 
@@ -85,7 +91,7 @@ public class MonederoTest {
     cuenta.setSaldo(900);
     cuenta.sacar(400);
     cuenta.sacar(200);
-    assertEquals(600, cuenta.getMontoExtraidoA(LocalDate.now()));
+    assertEquals(600, cuenta.montoExtraidoEnElDia(LocalDate.now()));
   }
 
   @Test
@@ -95,8 +101,35 @@ public class MonederoTest {
     assertEquals(2, cuenta.cantidadDeDepositosEnElDia(LocalDate.now()));
   }
 
-  // Me gustaria poner mas tests con la fecha, pero por ahora como no puedo poner operaciones en
-  // fechas diferentes queda ahi.
+  @Test
+  public void limiteDeExtraccionesSeReseteaAlTerminarElDia(){
+    cuenta.setSaldo(100);
+    Clock unaFecha = Clock.fixed(Instant.parse("2022-04-29T00:02:00.00Z"), ZoneId.of("America/Argentina/Buenos_Aires"));
+    Clock otraFecha = Clock.fixed(Instant.parse("2022-04-30T00:02:00.00Z"), ZoneId.of("America/Argentina/Buenos_Aires"));
+
+    Movimiento.setClock(unaFecha);
+    cuenta.sacar(10);
+    cuenta.sacar(10);
+    cuenta.sacar(10);
+    Movimiento.setClock(otraFecha);
+    Assertions.assertDoesNotThrow(() -> cuenta.sacar(10));
+  }
+
+  @Test
+  public void limiteCantidadDeDepositosSeReseteaAlTerminarElDia(){
+
+    Clock unaFecha = Clock.fixed(Instant.parse("2022-04-29T00:02:00.00Z"), ZoneId.of("America/Argentina/Buenos_Aires"));
+    Clock otraFecha = Clock.fixed(Instant.parse("2022-04-30T00:02:00.00Z"), ZoneId.of("America/Argentina/Buenos_Aires"));
+
+    Movimiento.setClock(unaFecha);
+    cuenta.poner(1000);
+    Movimiento.setClock(otraFecha);
+    Assertions.assertDoesNotThrow(() -> cuenta.poner(1));
+  }
+
+
+
+
 
 
 
